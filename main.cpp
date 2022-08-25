@@ -3,6 +3,7 @@
 #include<iostream>
 using namespace sf;
 
+
 int main()
 {
 	RenderWindow window(VideoMode(1200,800), "SFML Works!"/*,Style::Fullscreen*/);
@@ -18,28 +19,28 @@ int main()
 	window.display();
 	Texture texture;
 	Texture textureRev;
-	texture.loadFromFile("resources\\Cat2.png");
-	textureRev.loadFromFile("resources\\Cat2Rev.png");
+	texture.loadFromFile("resources\\Cat.png");
+	textureRev.loadFromFile("resources\\CatRev.png");
 	Sprite sprite;
-	/*Sprite spriteRev;*/
 	
 	sprite.setTexture(texture);
 	sprite.setTextureRect(IntRect(881, 999, 279, 201));//x,y,x,y
-	sprite.setPosition(50, 25);//x,y
-
+	sprite.setPosition(50, 575);//x,y
+	
 	//spriteRev.setTexture(textureRev);
 	//spriteRev.setTextureRect(IntRect(881, 999, 279, 201));//x,y,x,y
 	//spriteRev.setPosition(50, 25);//x,y
-	Clock clock;
-
 	float CurrentFrame = 0;//хранит текущий кадр
 
+	Clock clock;
+
+	
 	while (window.isOpen())
 	{
 		float time = clock.getElapsedTime().asMicroseconds();
 		clock.restart();
-		/*time = time / 800;*/
-		std::cout << time<< "\n";
+		time = time / 800;
+		/*std::cout << time<< "\n";*/
 		Event event;
 		while (window.pollEvent(event))
 		{
@@ -51,27 +52,64 @@ int main()
 		if (Keyboard::isKeyPressed(Keyboard::Left))
 		{
 			sprite.setTexture(textureRev);
+			int q;
+			q = 199 * int(CurrentFrame);
+			CurrentFrame += 0.005 * time;
+			if (CurrentFrame > 12)CurrentFrame -= 12;
+
+			sprite.setTextureRect(IntRect(347, 0 + q, 408, 199/**int(CurrentFrame)*/));
+			std::cout << sprite.getRotation() << "\n";
+			sprite.move(-0.15 * time, 0);
+			/*sprite.setTexture(textureRev);
 			sprite.move(-0.1*time, 0);
-			sprite.setTextureRect(IntRect(347, 1007, 367, 170));
+			sprite.setTextureRect(IntRect(347, 1007, 367, 170));*/
 		}
 		if (Keyboard::isKeyPressed(Keyboard::Right))
 		{
 			sprite.setTexture(texture);
+			int q;
+			q = 199 * int(CurrentFrame);
+			CurrentFrame += 0.005 * time;
+
+			if (CurrentFrame > 12)CurrentFrame -= 12;
+			
+				sprite.setTextureRect(IntRect(1183 , 0+q, 436, 199/**int(CurrentFrame)*/));
+				sprite.move(0.15 * time, 0);
+				
+			
+			/*sprite.setTextureRect(IntRect(1183, 7, 436, 183));*/
+			/*sprite.setTexture(texture);
 			sprite.move(0.1 * time, 0);
-			sprite.setTextureRect(IntRect(1227, 1020, 367, 170));
+			sprite.setTextureRect(IntRect(1183, 7, 436, 183));*/
 		}
 		if (Keyboard::isKeyPressed(Keyboard::Up))
 		{
-			sprite.move(0,-0.1 * time); //x,y
+
+
+			/*sprite.setTexture()*/
+			//sprite.move(0,-0.1/* * time*/); //x,y
 		}
 		if (Keyboard::isKeyPressed(Keyboard::Down))
 		{
-			sprite.move(0, 0.1 * time);
+			sprite.setTexture(texture);
+			//sprite.move(0, 0.1/* * time*/);
+			sprite.setTextureRect(IntRect(881, 999, 279, 201));
 		}
-
+		/*if ((Keyboard::isKeyPressed(Keyboard::Down)) && (Keyboard::isKeyPressed(Keyboard::Left)))
+		{
+			
+			sprite2.setTexture(textureRev);
+			
+			sprite2.setTextureRect(IntRect(1550, 1630, 408, 199));
+			sprite2.setRotation(52);
+			sprite2.move(-0.15 * time, 0);
+			
+			
+		}*/
 		window.clear(Color::White);
 		window.draw(spriteFon);
 		window.draw(sprite);
+	
 
 		window.display();
 	}
