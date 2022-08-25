@@ -6,7 +6,7 @@ using namespace sf;
 int main()
 {
 	RenderWindow window(VideoMode(1200,800), "SFML Works!"/*,Style::Fullscreen*/);
-
+	//ddd
 	Sprite spriteFon;
 	Texture textureFon;
 	textureFon.loadFromFile("resources\\Fon.jpg");
