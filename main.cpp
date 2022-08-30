@@ -43,7 +43,7 @@ public:
 	void setOnGround(const bool &g) { this->onGround = g; }
 	void Sit(const float &time)
 	{
-		if (rightM == true && sit == true)
+		if (rightM && sit)
 		{
 			x = 820, y = 0, x1 = 360, y1 = 199;
 			int q = 199 * int(CurrentFrame);
@@ -56,7 +56,7 @@ public:
 			sprite.setTexture(texture);
 			sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		}
-		if (leftM == true && sit == true)
+		if (leftM && sit)
 		{
 			x = 760, y = 0, x1 = 370, y1 = 199;
 			int q = 199 * int(CurrentFrame);
@@ -128,7 +128,6 @@ public:
 			CurrentFrame2 -= 13;
 		sprite.setTexture(texture);
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
-		std::cout << sprite.getPosition().x << std::endl;
 		if (sprite.getPosition().x < W - 350)
 			sprite.move(0.30 * time, 0);
 		if (spriteFon.getPosition().x > -800)
@@ -139,12 +138,31 @@ public:
 	}
 	void Jump(const float& time)
 	{
-		//sprite.setTexture(texture);
-		//int q = 199 * int(CurrentFrame);
-		///*CurrentFrame += 0.009 * time;*/
-		//x = 1183, y = 0, x1 = 436, y1 = 199;
-		//if (CurrentFrame > 12)CurrentFrame -= 12;
-		//sprite.setTextureRect(IntRect(x, y + q, x1, y1));
+		if(!onGround)
+		{
+			if (leftM || !rightM)
+			{
+				x = 1550, y = 1410, x1 = 365, y1 = 199;
+				int q = 199 * int(CurrentFrame2);
+				CurrentFrame2 += 0.015 * time;
+				if (CurrentFrame2 > 5)
+					CurrentFrame2 -= 13;
+				sprite.setTexture(textureRev);
+				sprite.setTextureRect(IntRect(x, y + q, x1, y1));
+			}
+			else
+			{
+				x = 33, y = 1410, x1 = 365, y1 = 199;
+				int q = 199 * int(CurrentFrame2);
+				CurrentFrame2 += 0.015 * time;
+				if (CurrentFrame2 > 5)
+					CurrentFrame2 -= 13;
+				sprite.setTexture(texture);
+				sprite.setTextureRect(IntRect(x, y + q, x1, y1));
+			}
+			
+			sit = true;
+		}
 		
 		if (sprite.getPosition().y >= 625)
 		{
@@ -171,6 +189,7 @@ int main()
 
 	Texture textureFon;
 	textureFon.loadFromFile("resources\\Fon.jpg");
+	textureFon.setSmooth(true);
 
 	Sprite spriteFon;
 	spriteFon.setTexture(textureFon);
@@ -182,6 +201,7 @@ int main()
 	testsound.setBuffer(sound1);
 	testsound.play();
 	testsound.setVolume(30);
+	testsound.setLoop(true);
 
 	Player A("resources\\Cat.png", "resources\\CatRev.png");
 	while (window.isOpen())
