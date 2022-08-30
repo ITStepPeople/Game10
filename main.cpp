@@ -85,6 +85,7 @@ int main()
 			sprite.move(0.1 * time, 0);
 			sprite.setTextureRect(IntRect(1183, 7, 436, 183));*/
 		}
+		//123test
 		if (Keyboard::isKeyPressed(Keyboard::Up))
 		{
 			int q;
