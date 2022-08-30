@@ -18,8 +18,9 @@ class Player
 	bool sit;
 	bool rightM;
 	bool leftM;
-public:
+	float dy = 0;
 	bool onGround;
+public:	
 	Player(const std::string& n, const std::string& n2)
 	{
 		texture.loadFromFile(n);
@@ -34,11 +35,12 @@ public:
 		sit = true;
 		rightM = false;
 		leftM = false;
-		onGround = false;
+		onGround = true;
 		texture.setSmooth(true);
 		textureRev.setSmooth(true);
 	}
 	Sprite getSprite()const { return sprite; }
+	void setOnGround(const bool &g) { this->onGround = g; }
 	void Sit(const float &time)
 	{
 		if (rightM == true && sit == true)
@@ -137,31 +139,27 @@ public:
 	}
 	void Jump(const float& time)
 	{
-		if (sprite.getPosition().y == 625)
-			onGround = true;
-		if(onGround)
-		{
-			sprite.setTexture(texture);
-			int q = 199 * int(CurrentFrame);
-			CurrentFrame += 0.009 * time;
-			x = 1183, y = 0, x1 = 436, y1 = 199;
-			if (CurrentFrame > 12)CurrentFrame -= 12;
-			sprite.setTextureRect(IntRect(x, y + q, x1, y1));
-			sprite.move(0, -0.10 * time);
-		}
-		else
-		{
-			sprite.setTexture(texture);
-			int q = 199 * int(CurrentFrame);
-			CurrentFrame += 0.009 * time;
-			x = 1183, y = 0, x1 = 436, y1 = 199;
-			if (CurrentFrame > 12)CurrentFrame -= 12;
-			sprite.setTextureRect(IntRect(x, y + q, x1, y1));
-			sprite.move(0, 0.10 * time);
-		}
-
-		sit = true;
+		//sprite.setTexture(texture);
+		//int q = 199 * int(CurrentFrame);
+		///*CurrentFrame += 0.009 * time;*/
+		//x = 1183, y = 0, x1 = 436, y1 = 199;
+		//if (CurrentFrame > 12)CurrentFrame -= 12;
+		//sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		
+		if (sprite.getPosition().y >= 625)
+		{
+			onGround = true;
+			dy = 0;
+		}
+		if(onGround && Keyboard::isKeyPressed(Keyboard::Space))
+		{
+			dy = -0.5;
+		}
+		if(!onGround)
+		{
+			dy += 0.001 * time;
+		}
+		sprite.move(0, dy);
 	}
 };
 
@@ -220,11 +218,12 @@ int main()
 		{
 			A.MoveRight(spriteFon, W, time);
 		}
-		if (Keyboard::isKeyPressed(Keyboard::Space) && A.onGround)
+		if (Keyboard::isKeyPressed(Keyboard::Space))
 		{
-			A.Jump(time);
+			A.setOnGround(false);
+			A.Jump(time);		
 		}
-		if (!Keyboard::isKeyPressed(Keyboard::Space)&&A.onGround == false)
+		if (!Keyboard::isKeyPressed(Keyboard::Space))
 		{
 			A.Jump(time);
 		}
