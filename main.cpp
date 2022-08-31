@@ -5,23 +5,47 @@
 #include <iostream>
 #include <stdio.h>
 #include <windows.h>
+#include "map.h"
 using namespace sf;
 
-class Player
+class Basic
 {
+protected:
 	int x, y, x1, y1;
 	float CurrentFrame;
-	float CurrentFrame2;
 	Texture texture;
-	Texture textureRev;
 	Sprite sprite;
+	float dy;
+	bool onGround;
+public:
+	Basic() 
+	{
+		CurrentFrame = 0;
+		dy = 0;
+		onGround = true;
+	};
+
+	Sprite getSprite()const { return sprite; }
+	void setOnGround(const bool& g) { this->onGround = g; }
+	void setPositionSprite(const float& X, const float& Y) { sprite.setPosition(X, Y); }
+	void SetXY_X1_Y1(const int& x, const int& y, const int& x1, const int& y1)
+	{
+		this->x = x;
+		this->y = y;
+		this->x1 = x1;
+		this->y1 = y1;
+	}
+
+};
+class Player :virtual public Basic
+{
+	float CurrentFrame2;
+	Texture textureRev;
 	bool sit;
 	bool rightM;
 	bool leftM;
-	float dy = 0;
-	bool onGround;
 public:	
-	Player(const std::string& n, const std::string& n2)
+	Player(const std::string& n, const std::string& n2, const int& X, const int& Y, const int& X1, const int& Y1)
 	{
 		texture.loadFromFile(n);
 		textureRev.loadFromFile(n2);
@@ -39,8 +63,7 @@ public:
 		texture.setSmooth(true);
 		textureRev.setSmooth(true);
 	}
-	Sprite getSprite()const { return sprite; }
-	void setOnGround(const bool &g) { this->onGround = g; }
+	
 	void Sit(const float &time)
 	{
 		if (rightM && sit)
@@ -81,7 +104,7 @@ public:
 		if (sprite.getPosition().x < W - 350)
 			sprite.move(0.12 * time, 0);
 		if (spriteFon.getPosition().x > -800)
-			spriteFon.move(-0.10 * time, 0);
+			spriteFon.move(-0.12 * time, 0);
 		sit = true;
 		rightM = true;
 		leftM = false;
@@ -97,7 +120,7 @@ public:
 		if (sprite.getPosition().x > 50)
 			sprite.move(-0.12 * time, 0);
 		if (spriteFon.getPosition().x < 0)
-			spriteFon.move(0.10 * time, 0);
+			spriteFon.move(0.12 * time, 0);
 		sit = true;
 		leftM = true;
 		rightM = false;
@@ -114,7 +137,7 @@ public:
 		if (sprite.getPosition().x > 50)
 			sprite.move(-0.30 * time, 0);
 		if (spriteFon.getPosition().x < 0)
-			spriteFon.move(0.25 * time, 0);
+			spriteFon.move(0.28 * time, 0);
 		sit = true;
 		rightM = false;
 		leftM = true;
@@ -131,34 +154,36 @@ public:
 		if (sprite.getPosition().x < W - 350)
 			sprite.move(0.30 * time, 0);
 		if (spriteFon.getPosition().x > -800)
-			spriteFon.move(-0.25 * time, 0);
+			spriteFon.move(-0.28 * time, 0);
 		sit = true;
 		rightM = true;
 		leftM = false;
 	}
 	void Jump(const float& time)
 	{
-		if(!onGround)
+		if(!onGround && !Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::D))
 		{
 			if (leftM || !rightM)
 			{
-				x = 1550, y = 1410, x1 = 365, y1 = 199;
+				x = 1550, y = 1020, x1 = 365, y1 = 199;
 				int q = 199 * int(CurrentFrame2);
-				CurrentFrame2 += 0.015 * time;
-				if (CurrentFrame2 > 5)
-					CurrentFrame2 -= 13;
+				CurrentFrame2 += 0.010 * time;
+				if (CurrentFrame2 > 7)
+					CurrentFrame2 -= 10;
 				sprite.setTexture(textureRev);
 				sprite.setTextureRect(IntRect(x, y + q, x1, y1));
+				leftM = true;
 			}
 			else
 			{
-				x = 33, y = 1410, x1 = 365, y1 = 199;
+				x = 33, y = 1020, x1 = 365, y1 = 199;
 				int q = 199 * int(CurrentFrame2);
-				CurrentFrame2 += 0.015 * time;
-				if (CurrentFrame2 > 5)
-					CurrentFrame2 -= 13;
+				CurrentFrame2 += 0.010 * time;
+				if (CurrentFrame2 > 7)
+					CurrentFrame2 -= 10;
 				sprite.setTexture(texture);
 				sprite.setTextureRect(IntRect(x, y + q, x1, y1));
+				rightM = true;
 			}
 			
 			sit = true;
@@ -181,11 +206,54 @@ public:
 	}
 };
 
+class ItemforGame: virtual public Basic
+{
+	
+public:
+ ItemforGame(const std::string& n, const int& X, const int& Y, const int& X1, const int& Y1)
+	{
+	texture.loadFromFile(n);
+	texture.setSmooth(true);
+	x = X, y = Y, x1 = X1, y1 = Y1;
+	sprite.setTexture(texture);
+	sprite.setTextureRect(IntRect(x, y, x1, y1));
+	sprite.setScale(0.7, 0.7);
+	onGround = false;
+	CurrentFrame = 0;
+	dy = 0;
+	}
+
+ void MoveDown(const float& time)
+ {
+	 std::cout << sprite.getPosition().y<<std::endl;
+	 if (sprite.getPosition().y >= 800)
+	 {
+		 onGround = true;
+		 dy = 0;
+	 }
+	 if (onGround)
+		 dy = 0;
+	 if (!onGround)
+	 {
+		 float t = (rand() % 30 + 1)/1000;
+		 dy += t + 0.0001 * time;
+	 }
+	 sprite.move(0, dy);
+ }
+};
 int main()
 {
+	srand(time(0));
 	int W = 1200, H = 800;
 	RenderWindow window(VideoMode(W, H), "CAT!"/*,Style::Fullscreen*/);
 	Clock clock;
+
+	Image map_i;
+	map_i.loadFromFile("resources\\test1.png");
+	Texture map;
+	map.loadFromImage(map_i);
+	Sprite s_map;
+	s_map.setTexture(map);
 
 	Texture textureFon;
 	textureFon.loadFromFile("resources\\Fon.jpg");
@@ -203,7 +271,9 @@ int main()
 	testsound.setVolume(30);
 	testsound.setLoop(true);
 
-	Player A("resources\\Cat.png", "resources\\CatRev.png");
+	Player A("resources\\Cat.png", "resources\\CatRev.png", 881,999, 279,201);
+	ItemforGame I("YJuk9VS.png",1,1,90,110);
+	I.setPositionSprite(rand() % 300 + 200, 0);
 	while (window.isOpen())
 	{
 		float time = clock.getElapsedTime().asMicroseconds();
@@ -219,37 +289,40 @@ int main()
 			}
 		}
 		if (!Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::A))
-		{
 			A.Sit(time);
-		}
 		if (Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::LShift))
-		{
 			A.SprintRight(spriteFon, W, time);
-		}
 		if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::LShift))
-		{
 			A.SprintLeft(spriteFon, W, time);
-		}
 		if (Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::LShift))
-		{
 			A.MoveLeft(spriteFon, W, time);
-		}
 		if (Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::LShift))
-		{
 			A.MoveRight(spriteFon, W, time);
-		}
 		if (Keyboard::isKeyPressed(Keyboard::Space))
 		{
 			A.setOnGround(false);
-			A.Jump(time);		
-		}
-		if (!Keyboard::isKeyPressed(Keyboard::Space))
-		{
 			A.Jump(time);
 		}
+		if (!Keyboard::isKeyPressed(Keyboard::Space))
+			A.Jump(time);
+
+		I.MoveDown(time);
+
 		window.clear(Color::White);
+		/*for (int i = 0; i < H_MAP; i++)
+		{
+			for (int u = 0; u < W_MAP; u++)
+			{
+				if (Tilemap[i][u] == ' ')s_map.setTextureRect(IntRect(0, 0, 254, 254));
+				if (Tilemap[i][u] == '0')s_map.setTextureRect(IntRect(0, 256, 244, 254));
+				if (Tilemap[i][u] == 's')s_map.setTextureRect(IntRect(254, 0, 254, 254));
+				s_map.setPosition(u * 220, i * 220);
+				window.draw(s_map);
+			}
+		}*/
 		window.draw(spriteFon);
 		window.draw(A.getSprite());
+		window.draw(I.getSprite());
 		window.display();
 	}
 	return 0;
