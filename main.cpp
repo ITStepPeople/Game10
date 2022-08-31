@@ -26,6 +26,7 @@ public:
 	};
 
 	Sprite getSprite()const { return sprite; }
+	bool getOnGround()const { return onGround; }
 	void setOnGround(const bool& g) { this->onGround = g; }
 	void setPositionSprite(const float& X, const float& Y) { sprite.setPosition(X, Y); }
 	void SetXY_X1_Y1(const int& x, const int& y, const int& x1, const int& y1)
@@ -217,28 +218,32 @@ public:
 	x = X, y = Y, x1 = X1, y1 = Y1;
 	sprite.setTexture(texture);
 	sprite.setTextureRect(IntRect(x, y, x1, y1));
-	sprite.setScale(0.7, 0.7);
 	onGround = false;
 	CurrentFrame = 0;
-	dy = 0;
+	dy = -0.05;
 	}
 
- void MoveDown(const float& time)
+ void MoveDown(const float& time,const int&stop)
  {
-	 std::cout << sprite.getPosition().y<<std::endl;
-	 if (sprite.getPosition().y >= 800)
+	 std::cout << sprite.getPosition().y<<std::endl;	 
+	 if (sprite.getPosition().y >= stop)
 	 {
 		 onGround = true;
-		 dy = 0;
+		 dy = -0.05;
 	 }
-	 if (onGround)
-		 dy = 0;
 	 if (!onGround)
 	 {
-		 float t = (rand() % 30 + 1)/1000;
-		 dy += t + 0.0001 * time;
+		 if (sprite.getPosition().y < stop / 3)
+		 {
+			 float t = rand() % 100 + 1;
+			 std::cout << "t: " << t << std::endl;
+			 dy += t / 100000.0 * time;
+			 sprite.move(0, dy);
+		 }
+		 else
+			 sprite.move(0, dy);
 	 }
-	 sprite.move(0, dy);
+	 
  }
 };
 int main()
@@ -272,8 +277,8 @@ int main()
 	testsound.setLoop(true);
 
 	Player A("resources\\Cat.png", "resources\\CatRev.png", 881,999, 279,201);
-	ItemforGame I("YJuk9VS.png",1,1,90,110);
-	I.setPositionSprite(rand() % 300 + 200, 0);
+	ItemforGame I("resources\\YJuk9VS.png",0,0,90,110);
+	I.setPositionSprite(rand() % 500 + 200, 0);
 	while (window.isOpen())
 	{
 		float time = clock.getElapsedTime().asMicroseconds();
@@ -305,8 +310,15 @@ int main()
 		}
 		if (!Keyboard::isKeyPressed(Keyboard::Space))
 			A.Jump(time);
-
-		I.MoveDown(time);
+		if (!I.getOnGround())
+		{
+			I.MoveDown(time, 800);
+		}
+		else
+		{
+			I.setOnGround(false);
+			I.setPositionSprite(rand() % W/2 + 100, 0);
+		}
 
 		window.clear(Color::White);
 		/*for (int i = 0; i < H_MAP; i++)
