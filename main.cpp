@@ -5,7 +5,6 @@
 #include <iostream>
 #include <stdio.h>
 #include <windows.h>
-#include "map.h"
 using namespace sf;
 
 class Basic
@@ -15,7 +14,6 @@ protected:
 	float CurrentFrame;
 	Texture texture;
 	Sprite sprite;
-	CircleShape body;
 	float dy;
 	bool onGround;
 public:
@@ -25,7 +23,6 @@ public:
 		dy = 0;
 		onGround = true;
 	};
-	CircleShape getBody()const { return body; }
 	Sprite getSprite()const { return sprite; }
 	Vector2f getPosition()const { return sprite.getPosition(); }
 	bool getOnGround()const { return onGround; }
@@ -107,7 +104,7 @@ public:
 		if (CurrentFrame > 12)CurrentFrame -= 12;
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x < W - 350)
-			sprite.move(0.12 * time, 0);	
+			sprite.move(0.12 * time, 0);
 		sit = true;
 		rightM = true;
 		leftM = false;
@@ -121,7 +118,7 @@ public:
 		x = 347, y = 0, x1 = 408, y1 = 199;
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x > 50)
-			sprite.move(-0.12 * time, 0);		
+			sprite.move(-0.12 * time, 0);
 		sit = true;
 		leftM = true;
 		rightM = false;
@@ -136,7 +133,7 @@ public:
 		sprite.setTexture(textureRev);
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x > 50)
-			sprite.move(-0.30 * time, 0);	
+			sprite.move(-0.30 * time, 0);
 		sit = true;
 		rightM = false;
 		leftM = true;
@@ -151,7 +148,7 @@ public:
 		sprite.setTexture(texture);
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x < W - 350)
-			sprite.move(0.30 * time, 0);		
+			sprite.move(0.30 * time, 0);
 		sit = true;
 		rightM = true;
 		leftM = false;
@@ -225,9 +222,7 @@ public:
 	 {
 		 onGround = true;
 		 dy = -0.05;
-	 }
-	 if(onGround)
-		 dy = -0.05;
+	 }	
 	 if (!onGround)
 	 {
 		 if (sprite.getPosition().y < stop / 2)
@@ -239,7 +234,11 @@ public:
 		 else
 			 sprite.move(0, dy);
 	 }
-	 
+	 else
+	 {
+		 onGround = true;
+		 dy = -0.05;
+	 }
  }
  void MoveLeft(const float& t)
  {
@@ -256,13 +255,6 @@ int main()
 	int W = 1200, H = 800;
 	RenderWindow window(VideoMode(W, H), "CAT!"/*,Style::Fullscreen*/);
 	Clock clock;
-
-	Image map_i;
-	map_i.loadFromFile("resources\\test1.png");
-	Texture map;
-	map.loadFromImage(map_i);
-	Sprite s_map;
-	s_map.setTexture(map);
 
 	Texture textureFon;
 	textureFon.loadFromFile("resources\\Fon.jpg");
@@ -281,9 +273,9 @@ int main()
 	testsound.setLoop(true);
 
 	Player A("resources\\Cat.png", "resources\\CatRev.png", 881,999, 279,201);
-
 	ItemforGame I("resources\\YJuk9VS.png",0,0,90,110);
-	I.setPositionSprite(rand() % 600 + 200, 0);
+	I.setPositionSprite(rand() % W/2 + 200, 0);
+
 	float timefish1 = std::clock();
 	while (window.isOpen())
 	{
@@ -348,16 +340,15 @@ int main()
 			A.Jump(time);
 
 		// Fish
-		/*if (I.getPosition().x >= A.getPosition().x && I.getPosition().y >= A.getPosition().y)
-		{
-			I.setOnGround(true);
-		}*/
 		float timefish2 = std::clock() - timefish1;
 		if(timefish2 > 2000) //задержка старта
-		{
+		{			
 			if (!I.getOnGround())
-			{
-
+			{			
+				if (I.getPosition().x >= A.getPosition().x && I.getPosition().x <= A.getPosition().x + 200 && I.getPosition().y >= A.getPosition().y) // проверка на поимку рыбки
+				{
+					I.setOnGround(true);
+				}
 				I.MoveDown(time, 800);
 			}
 			else
@@ -366,23 +357,11 @@ int main()
 				I.setPositionSprite(rand() % W / 2 + 100, 0);
 			}
 		}
-
+		
 		window.clear(Color::White);
-		/*for (int i = 0; i < H_MAP; i++)
-		{
-			for (int u = 0; u < W_MAP; u++)
-			{
-				if (Tilemap[i][u] == ' ')s_map.setTextureRect(IntRect(0, 0, 254, 254));
-				if (Tilemap[i][u] == '0')s_map.setTextureRect(IntRect(0, 256, 244, 254));
-				if (Tilemap[i][u] == 's')s_map.setTextureRect(IntRect(254, 0, 254, 254));
-				s_map.setPosition(u * 220, i * 220);
-				window.draw(s_map);
-			}
-		}*/
 		window.draw(spriteFon);
 		window.draw(A.getSprite());
 		window.draw(I.getSprite());
-		window.draw(A.getBody());
 		window.display();
 	}
 	return 0;
