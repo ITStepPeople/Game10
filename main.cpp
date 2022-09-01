@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <string>
@@ -35,7 +36,6 @@ public:
 		this->x1 = x1;
 		this->y1 = y1;
 	}
-
 };
 class Player :virtual public Basic
 {
@@ -104,7 +104,7 @@ public:
 		if (CurrentFrame > 12)CurrentFrame -= 12;
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x < W - 350)
-			sprite.move(0.12 * time, 0);
+			sprite.move(0.15 * time, 0);
 		sit = true;
 		rightM = true;
 		leftM = false;
@@ -118,7 +118,7 @@ public:
 		x = 347, y = 0, x1 = 408, y1 = 199;
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x > 50)
-			sprite.move(-0.12 * time, 0);
+			sprite.move(-0.15 * time, 0);
 		sit = true;
 		leftM = true;
 		rightM = false;
@@ -133,7 +133,7 @@ public:
 		sprite.setTexture(textureRev);
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x > 50)
-			sprite.move(-0.30 * time, 0);
+			sprite.move(-0.32 * time, 0);
 		sit = true;
 		rightM = false;
 		leftM = true;
@@ -148,7 +148,7 @@ public:
 		sprite.setTexture(texture);
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x < W - 350)
-			sprite.move(0.30 * time, 0);
+			sprite.move(0.32 * time, 0);
 		sit = true;
 		rightM = true;
 		leftM = false;
@@ -202,7 +202,6 @@ public:
 
 class ItemforGame: virtual public Basic
 {
-	
 public:
  ItemforGame(const std::string& n, const int& X, const int& Y, const int& X1, const int& Y1)
 	{
@@ -225,13 +224,18 @@ public:
 	 }	
 	 if (!onGround)
 	 {
+		 int q = 95 * int(CurrentFrame);
+		 CurrentFrame += 0.009 * time;
+		 x = 290, y = 0, x1 = 95, y1 = 110;
+		 if (CurrentFrame > 3)CurrentFrame -= 3;
+		 sprite.setTextureRect(IntRect(x + q, y, x1, y1));
 		 if (sprite.getPosition().y < stop / 2)
 		 {
 			 float t = rand() % 80 + 20;
 			 dy += t / 100000.0 * time;
 			 sprite.move(0, dy);
 		 }
-		 else
+		 else		 
 			 sprite.move(0, dy);
 	 }
 	 else
@@ -249,20 +253,34 @@ public:
 	 sprite.move(t, 0);
  }
 };
+
 int main()
 {
 	srand(time(0));
 	int W = 1200, H = 800;
 	RenderWindow window(VideoMode(W, H), "CAT!"/*,Style::Fullscreen*/);
 	Clock clock;
+	Font font;
+	font.loadFromFile("resources\\sansation.ttf");
+	Text text;
+	text.setFont(font);
+	text.setPosition(45, 10);
+	text.setScale(1.5, 1.5);
 
 	Texture textureFon;
 	textureFon.loadFromFile("resources\\Fon.jpg");
 	textureFon.setSmooth(true);
+	Texture Heart;
+	Heart.loadFromFile("resources\\serdce1.png");
+	Heart.setSmooth(true);
 
 	Sprite spriteFon;
 	spriteFon.setTexture(textureFon);
 	spriteFon.setScale(0.3, 0.3);
+	Sprite Heart_s;
+	Heart_s.setTexture(Heart);
+	Heart_s.setScale(0.05, 0.05);
+	Heart_s.setPosition(19, 0);
 
 	SoundBuffer sound1;
 	sound1.loadFromFile("resources\\04. The Blinded Forest.flac");
@@ -273,9 +291,11 @@ int main()
 	testsound.setLoop(true);
 
 	Player A("resources\\Cat.png", "resources\\CatRev.png", 881,999, 279,201);
-	ItemforGame I("resources\\YJuk9VS.png",0,0,90,110);
-	I.setPositionSprite(rand() % W/2 + 200, 0);
-
+	ItemforGame I("resources\\YJuk9VS.png",290,0,95,110);
+	I.setPositionSprite(rand() % (W / 3 + W / 3) + 100, 0);
+	ItemforGame Dog("resources\\pngegg.png", 0, 90, 125, 65);
+	Dog.setPositionSprite(500, 565);
+	int lives = 18;
 	float timefish1 = std::clock();
 	while (window.isOpen())
 	{
@@ -300,8 +320,8 @@ int main()
 			A.SprintRight(W, time);
 			if (spriteFon.getPosition().x > -800)
 			{
-				spriteFon.move(-0.28 * time, 0);
-				I.MoveRight(-0.28 * time);
+				spriteFon.move(-0.30 * time, 0);
+				I.MoveRight(-0.30 * time);
 			}
 		}
 		if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::LShift))
@@ -309,8 +329,8 @@ int main()
 			A.SprintLeft(W, time);
 			if (spriteFon.getPosition().x < 0)
 			{
-				spriteFon.move(0.28 * time, 0);
-				I.MoveLeft(0.28 * time);
+				spriteFon.move(0.30 * time, 0);
+				I.MoveLeft(0.30 * time);
 			}
 		}
 		if (Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::LShift))
@@ -342,26 +362,44 @@ int main()
 		// Fish
 		float timefish2 = std::clock() - timefish1;
 		if(timefish2 > 2000) //задержка старта
-		{			
-			if (!I.getOnGround())
-			{			
-				if (I.getPosition().x >= A.getPosition().x && I.getPosition().x <= A.getPosition().x + 200 && I.getPosition().y >= A.getPosition().y) // проверка на поимку рыбки
+		{	
+			if (lives > 0)
+			{
+				if (!I.getOnGround())
 				{
-					I.setOnGround(true);
+					if (I.getPosition().x >= A.getPosition().x && I.getPosition().x <= A.getPosition().x + 200 && I.getPosition().y >= A.getPosition().y) // проверка на поимку рыбки
+					{
+						I.setOnGround(true);
+					}
+					I.MoveDown(time, 800);
+					if (I.getPosition().y >= 800)
+						lives--;					
 				}
-				I.MoveDown(time, 800);
+				else
+				{
+					I.setOnGround(false);
+					I.setPositionSprite(rand() % (W / 3 + W / 3) + 100, 0);
+				}
+				char str[4];
+				_itoa(lives/2, str, 10);
+				text.setString(str);
 			}
 			else
 			{
-				I.setOnGround(false);
-				I.setPositionSprite(rand() % W / 2 + 100, 0);
+				text.setString("You Lost!");
+				window.draw(text);
 			}
 		}
-		
+
+
 		window.clear(Color::White);
 		window.draw(spriteFon);
+		window.draw(Heart_s);
 		window.draw(A.getSprite());
 		window.draw(I.getSprite());
+		window.draw(text);
+		
+		/*window.draw(Dog.getSprite());*/
 		window.display();
 	}
 	return 0;
