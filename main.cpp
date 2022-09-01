@@ -15,6 +15,7 @@ protected:
 	float CurrentFrame;
 	Texture texture;
 	Sprite sprite;
+	CircleShape body;
 	float dy;
 	bool onGround;
 public:
@@ -24,8 +25,9 @@ public:
 		dy = 0;
 		onGround = true;
 	};
-
+	CircleShape getBody()const { return body; }
 	Sprite getSprite()const { return sprite; }
+	Vector2f getPosition()const { return sprite.getPosition(); }
 	bool getOnGround()const { return onGround; }
 	void setOnGround(const bool& g) { this->onGround = g; }
 	void setPositionSprite(const float& X, const float& Y) { sprite.setPosition(X, Y); }
@@ -41,6 +43,7 @@ public:
 class Player :virtual public Basic
 {
 	float CurrentFrame2;
+	float CurrentFrame3;
 	Texture textureRev;
 	bool sit;
 	bool rightM;
@@ -52,6 +55,7 @@ public:
 		textureRev.loadFromFile(n2);
 		CurrentFrame = 0;
 		CurrentFrame2 = 0;
+		CurrentFrame3 = 0;
 		x = 881, y = 999, x1 = 279, y1 = 201;
 		sprite.setTexture(texture);
 		sprite.setTextureRect(IntRect(x, y, x1, y1));
@@ -62,7 +66,7 @@ public:
 		leftM = false;
 		onGround = true;
 		texture.setSmooth(true);
-		textureRev.setSmooth(true);
+		textureRev.setSmooth(true);		
 	}
 	
 	void Sit(const float &time)
@@ -70,12 +74,12 @@ public:
 		if (rightM && sit)
 		{
 			x = 820, y = 0, x1 = 360, y1 = 199;
-			int q = 199 * int(CurrentFrame);
-			CurrentFrame += 0.010 * time;
-			if (CurrentFrame > 6)
+			int q = 199 * int(CurrentFrame3);
+			CurrentFrame3 += 0.010 * time;
+			if (CurrentFrame3 > 6)
 			{
 				sit = false;
-				CurrentFrame -= 6;
+				CurrentFrame3 -= 6;
 			}
 			sprite.setTexture(texture);
 			sprite.setTextureRect(IntRect(x, y + q, x1, y1));
@@ -83,18 +87,18 @@ public:
 		if (leftM && sit)
 		{
 			x = 760, y = 0, x1 = 370, y1 = 199;
-			int q = 199 * int(CurrentFrame);
-			CurrentFrame += 0.010 * time;
-			if (CurrentFrame > 6)
+			int q = 199 * int(CurrentFrame3);
+			CurrentFrame3 += 0.010 * time;
+			if (CurrentFrame3 > 6)
 			{
 				sit = false;
-				CurrentFrame -= 6;
+				CurrentFrame3 -= 6;
 			}
 			sprite.setTexture(textureRev);
 			sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		}
 	}
-	void MoveRight(Sprite &spriteFon,const int &W,const float &time)
+	void MoveRight(const int &W,const float &time)
 	{
 		sprite.setTexture(texture);
 		int q = 199 * int(CurrentFrame);
@@ -103,14 +107,12 @@ public:
 		if (CurrentFrame > 12)CurrentFrame -= 12;
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x < W - 350)
-			sprite.move(0.12 * time, 0);
-		if (spriteFon.getPosition().x > -800)
-			spriteFon.move(-0.12 * time, 0);
+			sprite.move(0.12 * time, 0);	
 		sit = true;
 		rightM = true;
 		leftM = false;
 	}
-	void MoveLeft(Sprite& spriteFon, const int& W, const float& time)
+	void MoveLeft(const int& W, const float& time)
 	{
 		sprite.setTexture(textureRev);
 		int q = 199 * int(CurrentFrame);
@@ -119,14 +121,12 @@ public:
 		x = 347, y = 0, x1 = 408, y1 = 199;
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x > 50)
-			sprite.move(-0.12 * time, 0);
-		if (spriteFon.getPosition().x < 0)
-			spriteFon.move(0.12 * time, 0);
+			sprite.move(-0.12 * time, 0);		
 		sit = true;
 		leftM = true;
 		rightM = false;
 	}
-	void SprintLeft(Sprite& spriteFon, const int& W, const float& time)
+	void SprintLeft(const int& W, const float& time)
 	{
 		x = 1550, y = 1410, x1 = 365, y1 = 199;
 		int q = 199 * int(CurrentFrame2);
@@ -136,14 +136,12 @@ public:
 		sprite.setTexture(textureRev);
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x > 50)
-			sprite.move(-0.30 * time, 0);
-		if (spriteFon.getPosition().x < 0)
-			spriteFon.move(0.28 * time, 0);
+			sprite.move(-0.30 * time, 0);	
 		sit = true;
 		rightM = false;
 		leftM = true;
 	}
-	void SprintRight(Sprite& spriteFon, const int& W, const float& time)
+	void SprintRight(const int& W, const float& time)
 	{
 		x = 33, y = 1410, x1 = 365, y1 = 199;
 		int q = 199 * int(CurrentFrame2);
@@ -153,9 +151,7 @@ public:
 		sprite.setTexture(texture);
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x < W - 350)
-			sprite.move(0.30 * time, 0);
-		if (spriteFon.getPosition().x > -800)
-			spriteFon.move(-0.28 * time, 0);
+			sprite.move(0.30 * time, 0);		
 		sit = true;
 		rightM = true;
 		leftM = false;
@@ -224,19 +220,19 @@ public:
 	}
 
  void MoveDown(const float& time,const int&stop)
- {
-	 std::cout << sprite.getPosition().y<<std::endl;	 
+ { 
 	 if (sprite.getPosition().y >= stop)
 	 {
 		 onGround = true;
 		 dy = -0.05;
 	 }
+	 if(onGround)
+		 dy = -0.05;
 	 if (!onGround)
 	 {
-		 if (sprite.getPosition().y < stop / 3)
+		 if (sprite.getPosition().y < stop / 2)
 		 {
-			 float t = rand() % 100 + 1;
-			 std::cout << "t: " << t << std::endl;
+			 float t = rand() % 80 + 20;
 			 dy += t / 100000.0 * time;
 			 sprite.move(0, dy);
 		 }
@@ -244,6 +240,14 @@ public:
 			 sprite.move(0, dy);
 	 }
 	 
+ }
+ void MoveLeft(const float& t)
+ {
+	 sprite.move(t, 0);
+ }
+ void MoveRight(const float& t)
+ {
+	 sprite.move(t, 0);
  }
 };
 int main()
@@ -277,8 +281,10 @@ int main()
 	testsound.setLoop(true);
 
 	Player A("resources\\Cat.png", "resources\\CatRev.png", 881,999, 279,201);
+
 	ItemforGame I("resources\\YJuk9VS.png",0,0,90,110);
-	I.setPositionSprite(rand() % 500 + 200, 0);
+	I.setPositionSprite(rand() % 600 + 200, 0);
+	float timefish1 = std::clock();
 	while (window.isOpen())
 	{
 		float time = clock.getElapsedTime().asMicroseconds();
@@ -293,16 +299,46 @@ int main()
 				window.close();
 			}
 		}
+
+		// CAT
 		if (!Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::A))
 			A.Sit(time);
 		if (Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::LShift))
-			A.SprintRight(spriteFon, W, time);
+		{
+			A.SprintRight(W, time);
+			if (spriteFon.getPosition().x > -800)
+			{
+				spriteFon.move(-0.28 * time, 0);
+				I.MoveRight(-0.28 * time);
+			}
+		}
 		if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::LShift))
-			A.SprintLeft(spriteFon, W, time);
+		{
+			A.SprintLeft(W, time);
+			if (spriteFon.getPosition().x < 0)
+			{
+				spriteFon.move(0.28 * time, 0);
+				I.MoveLeft(0.28 * time);
+			}
+		}
 		if (Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::LShift))
-			A.MoveLeft(spriteFon, W, time);
+		{
+			A.MoveLeft(W, time);
+			if (spriteFon.getPosition().x < 0)
+			{
+				spriteFon.move(0.12 * time, 0);
+				I.MoveLeft(0.12 * time);
+			}
+		}
 		if (Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::LShift))
-			A.MoveRight(spriteFon, W, time);
+		{
+			A.MoveRight(W, time);
+			if (spriteFon.getPosition().x > -800)
+			{
+				spriteFon.move(-0.12 * time, 0);
+				I.MoveRight(-0.12 * time);
+			}
+		}
 		if (Keyboard::isKeyPressed(Keyboard::Space))
 		{
 			A.setOnGround(false);
@@ -310,14 +346,25 @@ int main()
 		}
 		if (!Keyboard::isKeyPressed(Keyboard::Space))
 			A.Jump(time);
-		if (!I.getOnGround())
+
+		// Fish
+		/*if (I.getPosition().x >= A.getPosition().x && I.getPosition().y >= A.getPosition().y)
 		{
-			I.MoveDown(time, 800);
-		}
-		else
+			I.setOnGround(true);
+		}*/
+		float timefish2 = std::clock() - timefish1;
+		if(timefish2 > 2000) //задержка старта
 		{
-			I.setOnGround(false);
-			I.setPositionSprite(rand() % W/2 + 100, 0);
+			if (!I.getOnGround())
+			{
+
+				I.MoveDown(time, 800);
+			}
+			else
+			{
+				I.setOnGround(false);
+				I.setPositionSprite(rand() % W / 2 + 100, 0);
+			}
 		}
 
 		window.clear(Color::White);
@@ -335,6 +382,7 @@ int main()
 		window.draw(spriteFon);
 		window.draw(A.getSprite());
 		window.draw(I.getSprite());
+		window.draw(A.getBody());
 		window.display();
 	}
 	return 0;
