@@ -27,6 +27,7 @@ public:
 	Sprite getSprite()const { return sprite; }
 	Vector2f getPosition()const { return sprite.getPosition(); }
 	bool getOnGround()const { return onGround; }
+	void setScaleSprite(const float& sizex, const float& sizey) { sprite.setScale(sizex, sizey); }
 	void setOnGround(const bool& g) { this->onGround = g; }
 	void setPositionSprite(const float& X, const float& Y) { sprite.setPosition(X, Y); }
 	void SetXY_X1_Y1(const int& x, const int& y, const int& x1, const int& y1)
@@ -104,7 +105,7 @@ public:
 		if (CurrentFrame > 12)CurrentFrame -= 12;
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x < W - 350)
-			sprite.move(0.15 * time, 0);
+			sprite.move(0.17 * time, 0);
 		sit = true;
 		rightM = true;
 		leftM = false;
@@ -118,7 +119,7 @@ public:
 		x = 347, y = 0, x1 = 408, y1 = 199;
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x > 50)
-			sprite.move(-0.15 * time, 0);
+			sprite.move(-0.17 * time, 0);
 		sit = true;
 		leftM = true;
 		rightM = false;
@@ -133,7 +134,7 @@ public:
 		sprite.setTexture(textureRev);
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x > 50)
-			sprite.move(-0.32 * time, 0);
+			sprite.move(-0.35 * time, 0);
 		sit = true;
 		rightM = false;
 		leftM = true;
@@ -148,7 +149,7 @@ public:
 		sprite.setTexture(texture);
 		sprite.setTextureRect(IntRect(x, y + q, x1, y1));
 		if (sprite.getPosition().x < W - 350)
-			sprite.move(0.32 * time, 0);
+			sprite.move(0.35 * time, 0);
 		sit = true;
 		rightM = true;
 		leftM = false;
@@ -202,6 +203,7 @@ public:
 
 class ItemforGame: virtual public Basic
 {
+	float CurrentFrame2 = 0;
 public:
  ItemforGame(const std::string& n, const int& X, const int& Y, const int& X1, const int& Y1)
 	{
@@ -240,16 +242,16 @@ public:
 	 }
 	 else
 	 {
-		 onGround = true;
 		 dy = -0.07;
 	 }
  }
- void MoveLeft(const float& t)
+ void MoveRightOrLeft(const float& t, const float& time)
  {
-	 sprite.move(t, 0);
- }
- void MoveRight(const float& t)
- {
+	 int q = 115 * int(CurrentFrame2);
+	 CurrentFrame2 += 0.009 * time;
+	 x = 25, y = 90, x1 = 100, y1 = 65;
+	 if (CurrentFrame2 > 5)CurrentFrame2 -= 5;
+	 sprite.setTextureRect(IntRect(x + q, y, x1, y1));
 	 sprite.move(t, 0);
  }
 };
@@ -278,6 +280,9 @@ int main()
 	Text ScoreinGame;
 	ScoreinGame.setFont(font);
 	ScoreinGame.setOutlineThickness(2);
+	Text levelText;
+	levelText.setFont(font);
+	levelText.setOutlineThickness(2);
 
 	Texture textureFon;
 	textureFon.loadFromFile("resources\\Fon.jpg");
@@ -316,8 +321,10 @@ int main()
 	Player A("resources\\Cat.png", "resources\\CatRev.png", 881,999, 279,201);
 	ItemforGame I("resources\\YJuk9VS.png",290,0,95,110);
 	I.setPositionSprite(rand() % (W / 3 + W / 3) + 100, -10);
-	/*ItemforGame Dog("resources\\pngegg.png", 0, 90, 125, 65);
-	Dog.setPositionSprite(500, 565);*/
+	ItemforGame Dog("resources\\pngegg.png", 0, 90, 125, 65);
+	Dog.setScaleSprite(2, 2);
+	Dog.setPositionSprite(-250, 675);
+	Dog.setOnGround(true);
 
 	bool Keep_playing = true;
 	int lives = 18;
@@ -340,18 +347,18 @@ int main()
 				window.close();
 			}
 		}
-
-		if (!Keep_playing) //endgame menu
+		//endgame menu
+		if (!Keep_playing)
 		{
 			textEND.setCharacterSize(40);
 			textEND.setPosition(W / 3 + 20, H / 3 + 80);
 			textEND.setFillColor(Color::Cyan);
-			textEND.setString("Space - New game.\n\n        ESC - Exit.");
-			if (Keyboard::isKeyPressed(Keyboard::Space))
+			textEND.setString("  F1 - New game.\n\n        ESC - Exit.");
+			if (Keyboard::isKeyPressed(Keyboard::F1))
 			{
 				Keep_playing = true;
 				timefish1 = std::clock();
-				lives = 9;
+				lives = 18;
 				score = 0;
 				level = 1;
 			}
@@ -360,42 +367,42 @@ int main()
 		}
 
 		// CAT
-		if (!Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::A))
+		if (!Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::A))
 			A.Sit(time);
-		if (Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::LShift))
+		if (Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::LShift) && !Keyboard::isKeyPressed(Keyboard::A))
 			{
 				A.SprintRight(W, time);
 				if (spriteFon.getPosition().x > -800)
 				{
-					spriteFon.move(-0.30 * time, 0);
-					I.MoveRight(-0.30 * time);
+					spriteFon.move(-0.35 * time, 0);
+					I.MoveRightOrLeft(-0.35 * time, time);
 				}
 			}
-		if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::LShift))
+		if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::LShift) && !Keyboard::isKeyPressed(Keyboard::D))
 			{
 				A.SprintLeft(W, time);
 				if (spriteFon.getPosition().x < 0)
 				{
-					spriteFon.move(0.30 * time, 0);
-					I.MoveLeft(0.30 * time);
+					spriteFon.move(0.35 * time, 0);
+					I.MoveRightOrLeft(0.35 * time, time);
 				}
 			}
-		if (Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::LShift))
+		if (Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::LShift) && !Keyboard::isKeyPressed(Keyboard::D))
 			{
 				A.MoveLeft(W, time);
 				if (spriteFon.getPosition().x < 0)
 				{
-					spriteFon.move(0.12 * time, 0);
-					I.MoveLeft(0.12 * time);
+					spriteFon.move(0.15 * time, 0);
+					I.MoveRightOrLeft(0.15 * time, time);
 				}
 			}
-		if (Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::LShift))
+		if (Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::LShift) && !Keyboard::isKeyPressed(Keyboard::A))
 			{
 				A.MoveRight(W, time);
 				if (spriteFon.getPosition().x > -800)
 				{
-					spriteFon.move(-0.12 * time, 0);
-					I.MoveRight(-0.12 * time);
+					spriteFon.move(-0.15 * time, 0);
+					I.MoveRightOrLeft(-0.15 * time, time);
 				}
 			}
 		if (!Keyboard::isKeyPressed(Keyboard::Space))
@@ -417,13 +424,39 @@ int main()
 				{
 					if (lives > 0)
 					{
-						if (score == 225 * level)
+						if (score == 60 * level)
 						{
 							level++;
 						}
+						if (level > 1)
+						{
+							if (Dog.getPosition().y - 30 <= A.getPosition().y)
+							{
+								if (Dog.getPosition().x + 100 >= A.getPosition().x && Dog.getPosition().x <= A.getPosition().x + 200)// проверка на dog
+								{
+									lives--;
+									Dog.setOnGround(true);
+									Dog.setPositionSprite(-250, 650);
+								}
+							}
+							if (score % 50 == 0 && Dog.getOnGround())
+							{
+								Dog.setOnGround(false);
+								Dog.setPositionSprite(-250, 650);
+							}
+							if(!Dog.getOnGround())
+							{							
+								Dog.MoveRightOrLeft(0.5 * time, time);			
+							}
+							if (Dog.getPosition().x >= W)
+							{
+								Dog.setOnGround(true);
+								Dog.setPositionSprite(-250, 650);
+							}
+						}
 						if (!I.getOnGround())
 						{
-							if (I.getPosition().x >= A.getPosition().x && I.getPosition().x <= A.getPosition().x + 200 && I.getPosition().y >= A.getPosition().y - 50) // проверка на поимку рыбки
+							if (I.getPosition().x >= A.getPosition().x && I.getPosition().x <= A.getPosition().x + 200 && I.getPosition().y >= A.getPosition().y - 50 && I.getPosition().y <= A.getPosition().y) // проверка на поимку рыбки
 							{
 								I.setOnGround(true);
 								score += 15;
@@ -450,6 +483,12 @@ int main()
 						ScoreinGame.setCharacterSize(45);
 						ScoreinGame.setFillColor(Color(255, 220, 0, 200));
 						ScoreinGame.setString(str2);
+						std::string str3 = "Round ";
+						str3 += level;
+						levelText.setPosition(W/2, 0);
+						levelText.setCharacterSize(45);
+						levelText.setFillColor(Color(255, 220, 0, 200));
+						levelText.setString(str3);
 					}
 					else
 					{
@@ -488,7 +527,9 @@ int main()
 			window.draw(EndgameSprite);
 		window.draw(Heart_s);
 		window.draw(ScoreinGame);
+		window.draw(levelText);
 		window.draw(A.getSprite());
+		if (timefish2 > 3000)
 		window.draw(I.getSprite());
 		if (Keep_playing)
 		window.draw(text);
@@ -498,8 +539,8 @@ int main()
 			window.draw(text2);
 			window.draw(scoreEnd);
 		}
-		
-		/*window.draw(Dog.getSprite());*/
+		if(level > 1)
+		window.draw(Dog.getSprite());
 		window.display();
 	}
 	return 0;
