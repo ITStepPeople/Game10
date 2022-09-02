@@ -220,7 +220,7 @@ public:
 	 if (sprite.getPosition().y >= stop)
 	 {
 		 onGround = true;
-		 dy = -0.05;
+		 dy = -0.07;
 	 }	
 	 if (!onGround)
 	 {
@@ -231,7 +231,7 @@ public:
 		 sprite.setTextureRect(IntRect(x + q, y, x1, y1));
 		 if (sprite.getPosition().y < stop / 3)
 		 {
-			 float t = rand() % 20+1;
+			 float t = rand() % 10+1;
 			 dy += t / 1000.0 * time;
 			 sprite.move(0, dy);
 		 }
@@ -241,7 +241,7 @@ public:
 	 else
 	 {
 		 onGround = true;
-		 dy = -0.05;
+		 dy = -0.07;
 	 }
  }
  void MoveLeft(const float& t)
@@ -275,6 +275,9 @@ int main()
 	Text scoreEnd;
 	scoreEnd.setFont(font);
 	scoreEnd.setOutlineThickness(2);
+	Text ScoreinGame;
+	ScoreinGame.setFont(font);
+	ScoreinGame.setOutlineThickness(2);
 
 	Texture textureFon;
 	textureFon.loadFromFile("resources\\Fon.jpg");
@@ -285,6 +288,7 @@ int main()
 	Texture endgame;
 	endgame.loadFromFile("resources\\endgame.png");
 	endgame.setSmooth(true);
+	
 
 	Sprite spriteFon;
 	spriteFon.setTexture(textureFon);
@@ -311,7 +315,7 @@ int main()
 
 	Player A("resources\\Cat.png", "resources\\CatRev.png", 881,999, 279,201);
 	ItemforGame I("resources\\YJuk9VS.png",290,0,95,110);
-	I.setPositionSprite(rand() % (W / 3 + W / 3) + 100, 0);
+	I.setPositionSprite(rand() % (W / 3 + W / 3) + 100, -10);
 	/*ItemforGame Dog("resources\\pngegg.png", 0, 90, 125, 65);
 	Dog.setPositionSprite(500, 565);*/
 
@@ -347,7 +351,7 @@ int main()
 			{
 				Keep_playing = true;
 				timefish1 = std::clock();
-				lives = 18;
+				lives = 9;
 				score = 0;
 				level = 1;
 			}
@@ -397,15 +401,14 @@ int main()
 		if (!Keyboard::isKeyPressed(Keyboard::Space))
 			A.Jump(time);
 		timefish2 = std::clock() - timefish1;
-		if (timefish2 > 300 && timefish2 < 3000)
+		if (timefish2 > 300)
 		{
 			if (Keyboard::isKeyPressed(Keyboard::Space))
 			{
 				A.setOnGround(false);
 				A.Jump(time);
 			}
-		}		
-		std::cout << level << std::endl;
+		}
 		// Fish
 		if (Keep_playing)
 			{
@@ -433,7 +436,7 @@ int main()
 						else
 						{
 							I.setOnGround(false);
-							I.setPositionSprite(rand() % (W / 3 + W / 3) + 100, 0);
+							I.setPositionSprite(rand() % (W / 3 + W / 3) + 100, -10);
 						}
 						char str[4];
 						_itoa(lives / 2, str, 10);
@@ -441,6 +444,12 @@ int main()
 						text.setCharacterSize(45);
 						text.setFillColor(Color::White);
 						text.setString(str);
+						char str2[10];
+						_itoa(score, str2, 10);
+						ScoreinGame.setPosition(W - W/10, 0);
+						ScoreinGame.setCharacterSize(45);
+						ScoreinGame.setFillColor(Color(255, 220, 0, 200));
+						ScoreinGame.setString(str2);
 					}
 					else
 					{
@@ -455,7 +464,7 @@ int main()
 						text2.setString("Game Over");
 						
 						scoreEnd.setCharacterSize(70);
-						scoreEnd.setPosition(W / 2 - 60, H / 5 - 10);
+						scoreEnd.setPosition(W / 2 - 43, H / 5 - 10);
 						scoreEnd.setFillColor(Color(255, 220, 0, 200));
 						scoreEnd.setString(_itoa(score,str,10));
 						Keep_playing = false;
@@ -478,6 +487,7 @@ int main()
 		if (lives <= 0)
 			window.draw(EndgameSprite);
 		window.draw(Heart_s);
+		window.draw(ScoreinGame);
 		window.draw(A.getSprite());
 		window.draw(I.getSprite());
 		if (Keep_playing)
