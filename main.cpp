@@ -307,16 +307,21 @@ int main()
 
 	SoundBuffer sound1;
 	SoundBuffer sound2;
-	sound1.loadFromFile("resources\\04. The Blinded Forest.flac");
-	sound2.loadFromFile("resources\\mrr1.flac");
+	SoundBuffer sound3;
+	sound1.loadFromFile("resources\\myaukan-e-koshki--pod-gitaru.wav");
+	sound2.loadFromFile("resources\\ball.wav");
+	sound3.loadFromFile("resources\\draka.flac");
 	Sound testsound;
 	Sound mrr;
+	Sound draka;
 	testsound.setBuffer(sound1);
 	testsound.play();
-	testsound.setVolume(30);
+	testsound.setVolume(25);
 	testsound.setLoop(true);
 	mrr.setBuffer(sound2);
-	mrr.setVolume(50);
+	mrr.setVolume(20);
+	draka.setBuffer(sound3);
+	draka.setVolume(15);
 
 	Player A("resources\\Cat.png", "resources\\CatRev.png", 881,999, 279,201);
 	ItemforGame I("resources\\YJuk9VS.png",290,0,95,110);
@@ -424,7 +429,7 @@ int main()
 				{
 					if (lives > 0)
 					{
-						if (score == 60 * level)
+						if (score == 135 * level)
 						{
 							level++;
 						}
@@ -437,6 +442,7 @@ int main()
 									lives--;
 									Dog.setOnGround(true);
 									Dog.setPositionSprite(-250, 650);
+									draka.play();
 								}
 							}
 							if (score % 50 == 0 && Dog.getOnGround())
@@ -484,9 +490,9 @@ int main()
 						ScoreinGame.setFillColor(Color(255, 220, 0, 200));
 						ScoreinGame.setString(str2);
 						std::string str3 = "Round ";
-						str3 += level;
-						levelText.setPosition(W/2, 0);
-						levelText.setCharacterSize(45);
+						str3 += std::to_string(int(level));
+						levelText.setPosition(W-W/8, 40);
+						levelText.setCharacterSize(30);
 						levelText.setFillColor(Color(255, 220, 0, 200));
 						levelText.setString(str3);
 					}
