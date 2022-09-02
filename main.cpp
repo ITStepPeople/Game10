@@ -198,6 +198,9 @@ public:
 		}
 		sprite.move(0, dy);
 	}
+
+
+
 };
 
 class ItemforGame : virtual public Basic
@@ -213,6 +216,11 @@ public:
 		onGround = false;
 		CurrentFrame = 0;
 		dy = -0.05;
+	}
+
+	void scale(float w, float h)
+	{
+		sprite.setScale(w,h);
 	}
 
 	void MoveDown(const float& time, const int& stop)
@@ -252,6 +260,8 @@ public:
 	{
 		sprite.move(t, 0);
 	}
+
+
 };
 
 int main()
@@ -290,6 +300,8 @@ int main()
 	endgame.setSmooth(true);
 
 
+	
+
 	Sprite spriteFon;
 	spriteFon.setTexture(textureFon);
 	spriteFon.setScale(0.3, 0.3);
@@ -316,10 +328,18 @@ int main()
 	Player A("resources\\Cat.png", "resources\\CatRev.png", 881, 999, 279, 201);
 	ItemforGame I("resources\\YJuk9VS.png", 290, 0, 95, 110);
 	I.setPositionSprite(rand() % (W / 3 + W / 3) + 100, -10);
-	/*ItemforGame Dog("resources\\pngegg.png", 0, 90, 125, 65);
-	Dog.setPositionSprite(500, 565);*/
+
+
+	ItemforGame Dog("resources\\Dog.png", 0, 0, 370, 200);
+	Dog.setPositionSprite(-70, 700);
+	Dog.scale(0.3, 0.3);
+	
+	
+	
+	
 
 	bool Keep_playing = true;
+	bool f = true;
 	int lives = 18;
 	int score = 0;
 	float level = 1;
@@ -327,6 +347,7 @@ int main()
 	float timefish2;
 	while (window.isOpen())
 	{
+		
 		float time = clock.getElapsedTime().asMicroseconds();
 		clock.restart();
 		time /= 800;
@@ -412,11 +433,15 @@ int main()
 		// Fish
 		if (Keep_playing)
 		{
+			/*bool f=false;*/
 			timefish2 = std::clock() - timefish1;
 			if (timefish2 > 3000) //start delay
 			{
 				if (lives > 0)
 				{
+					
+					
+					
 					if (score == 225 * level)
 					{
 						level++;
@@ -438,6 +463,30 @@ int main()
 						I.setOnGround(false);
 						I.setPositionSprite(rand() % (W / 3 + W / 3) + 100, -10);
 					}
+
+					if (score % 150 == 0)
+					{
+						f = false;
+						Dog.setPositionSprite(-70, 700);
+
+					}
+					
+					if (f == false)
+					{
+						Dog.MoveRight(0.01 * time + level);
+						if (Dog.getPosition().y - 75 <= A.getPosition().y)
+						{
+							if (Dog.getPosition().x >= A.getPosition().x)
+							{
+								A.setPositionSprite(50, 625);
+								Dog.setPositionSprite(-100, 700);
+								lives--;
+								f = true;
+							}
+						}
+						
+					}
+
 					char str[4];
 					_itoa(lives / 2, str, 10);
 					text.setPosition(45, 10);
@@ -499,7 +548,7 @@ int main()
 			window.draw(scoreEnd);
 		}
 
-		/*window.draw(Dog.getSprite());*/
+		window.draw(Dog.getSprite());
 		window.display();
 	}
 	return 0;
