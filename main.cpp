@@ -190,11 +190,11 @@ public:
 		}
 		if(onGround && Keyboard::isKeyPressed(Keyboard::Space))
 		{
-			dy = -0.5;
+			dy = -1.0 * time;
 		}
 		if(!onGround)
 		{
-			dy += 0.001 * time;
+			dy += 0.021 * time;
 		}
 		sprite.move(0, dy);
 	}
@@ -229,10 +229,10 @@ public:
 		 x = 290, y = 0, x1 = 95, y1 = 110;
 		 if (CurrentFrame > 3)CurrentFrame -= 3;
 		 sprite.setTextureRect(IntRect(x + q, y, x1, y1));
-		 if (sprite.getPosition().y < stop / 2)
+		 if (sprite.getPosition().y < stop / 3)
 		 {
-			 float t = rand() % 80 + 20;
-			 dy += t / 100000.0 * time;
+			 float t = rand() % 20+1;
+			 dy += t / 1000.0 * time;
 			 sprite.move(0, dy);
 		 }
 		 else		 
@@ -259,13 +259,22 @@ int main()
 	srand(time(0));
 	int W = 1200, H = 800;
 	RenderWindow window(VideoMode(W, H), "CAT!"/*,Style::Fullscreen*/);
+	window.setFramerateLimit(144);
 	Clock clock;
 	Font font;
 	font.loadFromFile("resources\\sansation.ttf");
 	Text text;
 	text.setFont(font);
-	text.setPosition(45, 10);
-	text.setScale(1.5, 1.5);
+	text.setOutlineThickness(2);
+	Text text2;
+	text2.setFont(font);
+	text2.setOutlineThickness(2);
+	Text textEND;
+	textEND.setFont(font);
+	textEND.setOutlineThickness(2);
+	Text scoreEnd;
+	scoreEnd.setFont(font);
+	scoreEnd.setOutlineThickness(2);
 
 	Texture textureFon;
 	textureFon.loadFromFile("resources\\Fon.jpg");
@@ -273,6 +282,9 @@ int main()
 	Texture Heart;
 	Heart.loadFromFile("resources\\serdce1.png");
 	Heart.setSmooth(true);
+	Texture endgame;
+	endgame.loadFromFile("resources\\endgame.png");
+	endgame.setSmooth(true);
 
 	Sprite spriteFon;
 	spriteFon.setTexture(textureFon);
@@ -281,27 +293,40 @@ int main()
 	Heart_s.setTexture(Heart);
 	Heart_s.setScale(0.05, 0.05);
 	Heart_s.setPosition(19, 0);
+	Sprite EndgameSprite;
+	EndgameSprite.setTexture(endgame);
 
 	SoundBuffer sound1;
+	SoundBuffer sound2;
 	sound1.loadFromFile("resources\\04. The Blinded Forest.flac");
+	sound2.loadFromFile("resources\\mrr1.flac");
 	Sound testsound;
+	Sound mrr;
 	testsound.setBuffer(sound1);
 	testsound.play();
 	testsound.setVolume(30);
 	testsound.setLoop(true);
+	mrr.setBuffer(sound2);
+	mrr.setVolume(50);
 
 	Player A("resources\\Cat.png", "resources\\CatRev.png", 881,999, 279,201);
 	ItemforGame I("resources\\YJuk9VS.png",290,0,95,110);
 	I.setPositionSprite(rand() % (W / 3 + W / 3) + 100, 0);
-	ItemforGame Dog("resources\\pngegg.png", 0, 90, 125, 65);
-	Dog.setPositionSprite(500, 565);
+	/*ItemforGame Dog("resources\\pngegg.png", 0, 90, 125, 65);
+	Dog.setPositionSprite(500, 565);*/
+
+	bool Keep_playing = true;
 	int lives = 18;
+	int score = 0;
+	float level = 1;
 	float timefish1 = std::clock();
+	float timefish2;
 	while (window.isOpen())
 	{
 		float time = clock.getElapsedTime().asMicroseconds();
 		clock.restart();
 		time /= 800;
+		
 		Event event;
 		while (window.pollEvent(event))
 		{
@@ -312,92 +337,157 @@ int main()
 			}
 		}
 
+		if (!Keep_playing) //endgame menu
+		{
+			textEND.setCharacterSize(40);
+			textEND.setPosition(W / 3 + 20, H / 3 + 80);
+			textEND.setFillColor(Color::Cyan);
+			textEND.setString("Space - New game.\n\n        ESC - Exit.");
+			if (Keyboard::isKeyPressed(Keyboard::Space))
+			{
+				Keep_playing = true;
+				timefish1 = std::clock();
+				lives = 18;
+				score = 0;
+				level = 1;
+			}
+			if (Keyboard::isKeyPressed(Keyboard::Escape))
+				window.close();
+		}
+
 		// CAT
 		if (!Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::A))
 			A.Sit(time);
 		if (Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::LShift))
-		{
-			A.SprintRight(W, time);
-			if (spriteFon.getPosition().x > -800)
 			{
-				spriteFon.move(-0.30 * time, 0);
-				I.MoveRight(-0.30 * time);
+				A.SprintRight(W, time);
+				if (spriteFon.getPosition().x > -800)
+				{
+					spriteFon.move(-0.30 * time, 0);
+					I.MoveRight(-0.30 * time);
+				}
 			}
-		}
 		if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::LShift))
-		{
-			A.SprintLeft(W, time);
-			if (spriteFon.getPosition().x < 0)
 			{
-				spriteFon.move(0.30 * time, 0);
-				I.MoveLeft(0.30 * time);
+				A.SprintLeft(W, time);
+				if (spriteFon.getPosition().x < 0)
+				{
+					spriteFon.move(0.30 * time, 0);
+					I.MoveLeft(0.30 * time);
+				}
 			}
-		}
 		if (Keyboard::isKeyPressed(Keyboard::A) && !Keyboard::isKeyPressed(Keyboard::LShift))
-		{
-			A.MoveLeft(W, time);
-			if (spriteFon.getPosition().x < 0)
 			{
-				spriteFon.move(0.12 * time, 0);
-				I.MoveLeft(0.12 * time);
+				A.MoveLeft(W, time);
+				if (spriteFon.getPosition().x < 0)
+				{
+					spriteFon.move(0.12 * time, 0);
+					I.MoveLeft(0.12 * time);
+				}
 			}
-		}
 		if (Keyboard::isKeyPressed(Keyboard::D) && !Keyboard::isKeyPressed(Keyboard::LShift))
-		{
-			A.MoveRight(W, time);
-			if (spriteFon.getPosition().x > -800)
 			{
-				spriteFon.move(-0.12 * time, 0);
-				I.MoveRight(-0.12 * time);
+				A.MoveRight(W, time);
+				if (spriteFon.getPosition().x > -800)
+				{
+					spriteFon.move(-0.12 * time, 0);
+					I.MoveRight(-0.12 * time);
+				}
 			}
-		}
-		if (Keyboard::isKeyPressed(Keyboard::Space))
-		{
-			A.setOnGround(false);
-			A.Jump(time);
-		}
 		if (!Keyboard::isKeyPressed(Keyboard::Space))
 			A.Jump(time);
-
-		// Fish
-		float timefish2 = std::clock() - timefish1;
-		if(timefish2 > 2000) //задержка старта
-		{	
-			if (lives > 0)
+		timefish2 = std::clock() - timefish1;
+		if (timefish2 > 300 && timefish2 < 3000)
+		{
+			if (Keyboard::isKeyPressed(Keyboard::Space))
 			{
-				if (!I.getOnGround())
+				A.setOnGround(false);
+				A.Jump(time);
+			}
+		}		
+		std::cout << level << std::endl;
+		// Fish
+		if (Keep_playing)
+			{
+				timefish2 = std::clock() - timefish1;
+				if (timefish2 > 3000) //start delay
 				{
-					if (I.getPosition().x >= A.getPosition().x && I.getPosition().x <= A.getPosition().x + 200 && I.getPosition().y >= A.getPosition().y) // проверка на поимку рыбки
+					if (lives > 0)
 					{
-						I.setOnGround(true);
+						if (score == 225 * level)
+						{
+							level++;
+						}
+						if (!I.getOnGround())
+						{
+							if (I.getPosition().x >= A.getPosition().x && I.getPosition().x <= A.getPosition().x + 200 && I.getPosition().y >= A.getPosition().y - 50) // проверка на поимку рыбки
+							{
+								I.setOnGround(true);
+								score += 15;
+								mrr.play();
+							}
+							I.MoveDown(time+5*level, 800);
+							if (I.getPosition().y >= 800)
+								lives--;
+						}
+						else
+						{
+							I.setOnGround(false);
+							I.setPositionSprite(rand() % (W / 3 + W / 3) + 100, 0);
+						}
+						char str[4];
+						_itoa(lives / 2, str, 10);
+						text.setPosition(45, 10);
+						text.setCharacterSize(45);
+						text.setFillColor(Color::White);
+						text.setString(str);
 					}
-					I.MoveDown(time, 800);
-					if (I.getPosition().y >= 800)
-						lives--;					
+					else
+					{
+						char str[20];
+						EndgameSprite.setScale(0.3, 0.3);
+						EndgameSprite.setPosition(W / 4, H / 5);
+						EndgameSprite.setTextureRect(IntRect(1065, 1370, 1935, 1430));
+
+						text2.setCharacterSize(90);
+						text2.setPosition(W / 3 - 35, H / 3 - 40);
+						text2.setFillColor(Color(255, 0, 0, 200));
+						text2.setString("Game Over");
+						
+						scoreEnd.setCharacterSize(70);
+						scoreEnd.setPosition(W / 2 - 60, H / 5 - 10);
+						scoreEnd.setFillColor(Color(255, 220, 0, 200));
+						scoreEnd.setString(_itoa(score,str,10));
+						Keep_playing = false;
+					}
 				}
 				else
-				{
-					I.setOnGround(false);
-					I.setPositionSprite(rand() % (W / 3 + W / 3) + 100, 0);
+				{    //starting timer
+					char str[4];
+					_itoa(4 - timefish2 / 1000, str, 10);
+					text.setPosition(W / 2 - 30, H / 3 - 40);
+					text.setCharacterSize(120);
+					text.setFillColor(Color(255, 255, 0, 200));
+					text.setString(str);
 				}
-				char str[4];
-				_itoa(lives/2, str, 10);
-				text.setString(str);
 			}
-			else
-			{
-				text.setString("You Lost!");
-				window.draw(text);
-			}
-		}
 
 
 		window.clear(Color::White);
 		window.draw(spriteFon);
+		if (lives <= 0)
+			window.draw(EndgameSprite);
 		window.draw(Heart_s);
 		window.draw(A.getSprite());
 		window.draw(I.getSprite());
+		if (Keep_playing)
 		window.draw(text);
+		if(!Keep_playing)
+		{
+			window.draw(textEND);
+			window.draw(text2);
+			window.draw(scoreEnd);
+		}
 		
 		/*window.draw(Dog.getSprite());*/
 		window.display();
