@@ -440,8 +440,6 @@ int main()
 				if (lives > 0)
 				{
 					
-					
-					
 					if (score == 225 * level)
 					{
 						level++;
